@@ -103,6 +103,10 @@ tuck uses Tree-sitter queries to find function bodies, then sets up `foldexpr` t
 
 When you call one of the LSP navigation wrappers, it does the normal LSP thing and then runs `zO` to recursively open folds at the cursor.
 
+## Troubleshooting
+
+If it doesn't seem to work,run `:Tuck debug` to see what's happening.
+
 ## License
 
 MIT
