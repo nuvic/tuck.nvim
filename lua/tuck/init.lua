@@ -39,9 +39,16 @@ local function setup_autocmds()
   })
 end
 
+local function setup_integrations()
+  if config.options.integrations.fzf_lua then
+    require('tuck.integrations.fzf_lua').setup()
+  end
+end
+
 function M.setup(opts)
   config.setup(opts)
   setup_autocmds()
+  setup_integrations()
 
   if config.options.enabled then
     local bufnr = vim.api.nvim_get_current_buf()
@@ -62,6 +69,11 @@ function M.disable()
   config.options.enabled = false
   vim.api.nvim_clear_autocmds({ group = augroup })
   fold.reset_folds()
+
+  if config.options.integrations.fzf_lua then
+    require('tuck.integrations.fzf_lua').restore()
+  end
+
   vim.notify('Tuck disabled', vim.log.levels.INFO)
 end
 

@@ -11,6 +11,9 @@ M.defaults = {
     implementation = 'gi',
     type_definition = 'gy',
   },
+  integrations = {
+    fzf_lua = false,
+  },
 }
 
 M.options = {}

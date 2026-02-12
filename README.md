@@ -67,6 +67,9 @@ require('tuck').setup({
     implementation = 'gi',
     type_definition = 'gy',
   },
+  integrations = {
+    fzf_lua = false,      -- unfold when jumping via fzf-lua pickers
+  },
 })
 ```
 
@@ -102,6 +105,24 @@ These are just wrappers around the normal `vim.lsp.buf.*` functions that unfold 
 tuck uses Tree-sitter queries to find function bodies, then sets up `foldexpr` to fold them. The queries live in `queries/tuck/` if you want to poke around or add new languages.
 
 When you call one of the LSP navigation wrappers, it does the normal LSP thing and then runs `zO` to recursively open folds at the cursor.
+
+## Integrations
+
+### fzf-lua
+
+If you use [fzf-lua](https://github.com/ibhagwan/fzf-lua), enable the integration to automatically unfold when jumping to files:
+
+```lua
+require('tuck').setup({
+  integrations = {
+    fzf_lua = true,
+  },
+})
+```
+
+This patches fzf-lua's file actions (`file_edit`, `file_split`, `file_vsplit`, etc.) to unfold at cursor after jumping. Works with all fzf-lua pickers - `files`, `grep`, `lsp_definitions`, `global`, you name it.
+
+Your existing fzf-lua keybinds and config are preserved.
 
 ## Troubleshooting
 

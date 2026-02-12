@@ -15,6 +15,13 @@ local subcommands = {
   end,
   debug = function()
     require('tuck.fold').debug()
+    local config = require('tuck.config')
+    print('')
+    print('=== Integrations ===')
+    print('fzf_lua enabled: ' .. tostring(config.options.integrations.fzf_lua))
+    if config.options.integrations.fzf_lua then
+      require('tuck.integrations.fzf_lua').debug()
+    end
   end,
 }
 

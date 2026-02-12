@@ -1,10 +1,11 @@
 local M = {}
 
 local config = require('tuck.config')
+local fold = require('tuck.fold')
 
 local function unfold_at_cursor()
   vim.schedule(function()
-    pcall(vim.cmd, 'silent! normal! zO')
+    fold.unfold_at_cursor()
   end)
 end
 
