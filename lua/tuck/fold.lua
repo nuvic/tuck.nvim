@@ -53,21 +53,12 @@ local function get_query(lang)
   return query
 end
 
-local notified_missing_parser = {}
-
 local function get_fold_ranges(bufnr)
   local ft = vim.bo[bufnr].filetype
   local lang = vim.treesitter.language.get_lang(ft) or ft
 
   local ok, parser = pcall(vim.treesitter.get_parser, bufnr, lang)
   if not ok or not parser then
-    if not notified_missing_parser[lang] then
-      vim.notify(
-        string.format('Tuck: Tree-sitter parser for "%s" not found. Run :TSInstall %s', lang, lang),
-        vim.log.levels.WARN
-      )
-      notified_missing_parser[lang] = true
-    end
     return {}
   end
 
