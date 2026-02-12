@@ -36,7 +36,7 @@ PRs welcome for more languages - the queries are pretty simple.
 lazy.nvim:
 ```lua
 {
-  'yourusername/tuck.nvim',
+  'nuvic/tuck.nvim',
   config = function()
     require('tuck').setup()
   end,
@@ -46,7 +46,7 @@ lazy.nvim:
 packer:
 ```lua
 use {
-  'yourusername/tuck.nvim',
+  'nuvic/tuck.nvim',
   config = function()
     require('tuck').setup()
   end,
