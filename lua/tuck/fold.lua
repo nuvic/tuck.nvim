@@ -139,11 +139,16 @@ function M.apply_folds(bufnr)
 
   vim.wo.foldmethod = 'expr'
   vim.wo.foldexpr = "v:lua.require'tuck.fold'.foldexpr(v:lnum)"
-  vim.wo.foldlevel = 0
   vim.wo.foldenable = true
+
+  if vim.b[bufnr].tuck_initialized then
+    return
+  end
+  vim.b[bufnr].tuck_initialized = true
 
   vim.schedule(function()
     if vim.api.nvim_buf_is_valid(bufnr) and vim.api.nvim_get_current_buf() == bufnr then
+      vim.wo.foldlevel = 0
       vim.cmd('silent! normal! zM')
     end
   end)
@@ -152,6 +157,7 @@ end
 function M.reset_folds(bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
   M.invalidate_cache(bufnr)
+  vim.b[bufnr].tuck_initialized = nil
 
   vim.wo.foldmethod = 'manual'
   vim.wo.foldexpr = ''
@@ -162,7 +168,9 @@ end
 function M.refold(bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
   M.invalidate_cache(bufnr)
+  vim.b[bufnr].tuck_initialized = nil
   vim.cmd('silent! normal! zM')
+  vim.b[bufnr].tuck_initialized = true
 end
 
 function M.unfold_at_cursor()
