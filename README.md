@@ -4,7 +4,7 @@ Automatically fold function bodies so you can actually see your code structure.
 
 ## Requirements
 
-- Neovim 0.9+
+- Neovim 0.10+
 - [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) with parsers installed for your languages:
 
 ```vim
@@ -60,15 +60,8 @@ require('tuck').setup({
   enabled = true,
   exclude_filetypes = { 'markdown', 'text' },
   exclude_paths = { 'vendor/*', 'node_modules/*' },
-  keymaps = {
-    enabled = true,       -- set to false if you want to handle keymaps yourself
-    definition = 'gd',
-    references = 'gr',
-    implementation = 'gi',
-    type_definition = 'gy',
-  },
   integrations = {
-    fzf_lua = false,      -- unfold when jumping via fzf-lua pickers
+    fzf_lua = false,
   },
 })
 ```
@@ -82,35 +75,20 @@ require('tuck').setup({
 | `:Tuck toggle` | Toggle |
 | `:Tuck fold` | Re-fold everything in current buffer |
 
-## Using your own keymaps
-
-If you've got your own LSP keymaps and don't want tuck stepping on them, disable the built-in keymaps and call the functions directly:
-
-```lua
-require('tuck').setup({
-  keymaps = { enabled = false },
-})
-
--- Then in your LSP on_attach or wherever:
-vim.keymap.set('n', '<leader>gd', require('tuck').definition)
-vim.keymap.set('n', '<leader>gr', require('tuck').references)
-vim.keymap.set('n', '<leader>gi', require('tuck').implementation)
-vim.keymap.set('n', '<leader>gy', require('tuck').type_definition)
-```
-
-These are just wrappers around the normal `vim.lsp.buf.*` functions that unfold at the cursor after jumping.
-
 ## How it works
 
 tuck uses Tree-sitter queries to find function bodies, then sets up `foldexpr` to fold them. The queries live in `queries/tuck/` if you want to poke around or add new languages.
 
-When you call one of the LSP navigation wrappers, it does the normal LSP thing and then runs `zO` to recursively open folds at the cursor.
+When you navigate via LSP (go to definition, references, etc.), tuck automatically unfolds the function body at the cursor position. This works with:
+
+- Native LSP navigation (`vim.lsp.buf.definition()`, etc.)
+- fzf-lua LSP pickers (with the integration enabled)
 
 ## Integrations
 
 ### fzf-lua
 
-If you use [fzf-lua](https://github.com/ibhagwan/fzf-lua), enable the integration to automatically unfold when jumping to files:
+If you use [fzf-lua](https://github.com/ibhagwan/fzf-lua), enable the integration to automatically unfold when jumping via fzf-lua pickers:
 
 ```lua
 require('tuck').setup({
@@ -120,13 +98,13 @@ require('tuck').setup({
 })
 ```
 
-This patches fzf-lua's file actions (`file_edit`, `file_split`, `file_vsplit`, etc.) to unfold at cursor after jumping. Works with all fzf-lua pickers - `files`, `grep`, `lsp_definitions`, `global`, you name it.
+This patches fzf-lua's file actions (`file_edit`, `file_split`, `file_vsplit`, etc.) and LSP jump functions to unfold at cursor after jumping. Works with all fzf-lua pickers - `files`, `grep`, `lsp_definitions`, you name it.
 
 Your existing fzf-lua keybinds and config are preserved.
 
 ## Troubleshooting
 
-If it doesn't seem to work,run `:Tuck debug` to see what's happening.
+If it doesn't seem to work, run `:Tuck debug` to see what's happening.
 
 ## License
 

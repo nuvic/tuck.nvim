@@ -4,13 +4,6 @@ M.defaults = {
   enabled = true,
   exclude_filetypes = {},
   exclude_paths = {},
-  keymaps = {
-    enabled = true,
-    definition = 'gd',
-    references = 'gr',
-    implementation = 'gi',
-    type_definition = 'gy',
-  },
   integrations = {
     fzf_lua = false,
   },

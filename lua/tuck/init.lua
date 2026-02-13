@@ -2,9 +2,16 @@ local M = {}
 
 local config = require('tuck.config')
 local fold = require('tuck.fold')
-local lsp = require('tuck.lsp')
 
 local augroup = vim.api.nvim_create_augroup('Tuck', { clear = true })
+
+local lsp_navigation_methods = {
+  ['textDocument/definition'] = true,
+  ['textDocument/declaration'] = true,
+  ['textDocument/typeDefinition'] = true,
+  ['textDocument/implementation'] = true,
+  ['textDocument/references'] = true,
+}
 
 local function setup_autocmds()
   vim.api.nvim_clear_autocmds({ group = augroup })
@@ -22,11 +29,17 @@ local function setup_autocmds()
     end,
   })
 
-  vim.api.nvim_create_autocmd('LspAttach', {
+  vim.api.nvim_create_autocmd('LspRequest', {
     group = augroup,
     callback = function(args)
-      if config.options.enabled and not config.is_excluded(args.buf) then
-        lsp.setup_keymaps(args.buf)
+      if not config.options.enabled then
+        return
+      end
+      local request = args.data and args.data.request
+      if request and lsp_navigation_methods[request.method] then
+        vim.defer_fn(function()
+          fold.unfold_at_cursor()
+        end, 50)
       end
     end,
   })
@@ -84,10 +97,5 @@ function M.toggle()
     M.enable()
   end
 end
-
-M.definition = lsp.definition
-M.references = lsp.references
-M.implementation = lsp.implementation
-M.type_definition = lsp.type_definition
 
 return M

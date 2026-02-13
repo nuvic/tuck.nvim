@@ -4,28 +4,6 @@ local config = require('tuck.config')
 
 local query_cache = {}
 
-local function_node_types = {
-  lua = { 'function_declaration', 'function_definition', 'local_function' },
-  ruby = { 'method', 'singleton_method' },
-  python = { 'function_definition' },
-  javascript = { 'function_declaration', 'method_definition', 'arrow_function' },
-  typescript = { 'function_declaration', 'method_definition', 'arrow_function' },
-  rust = { 'function_item' },
-}
-
-local function is_function_node(node_type, lang)
-  local types = function_node_types[lang]
-  if not types then
-    return false
-  end
-  for _, t in ipairs(types) do
-    if node_type == t then
-      return true
-    end
-  end
-  return false
-end
-
 local function get_query(lang)
   if query_cache[lang] then
     return query_cache[lang]
@@ -174,37 +152,25 @@ function M.refold(bufnr)
 end
 
 function M.unfold_at_cursor()
-  pcall(vim.cmd, 'silent! normal! zO')
+  pcall(vim.cmd, 'silent! normal! zv')
 
   local bufnr = vim.api.nvim_get_current_buf()
-  local ft = vim.bo[bufnr].filetype
-  local lang = vim.treesitter.language.get_lang(ft) or ft
+  local cursor_line = vim.api.nvim_win_get_cursor(0)[1]
 
-  local ok, parser = pcall(vim.treesitter.get_parser, bufnr, lang)
-  if not ok or not parser then
-    return
+  if not M._fold_cache then
+    M._fold_cache = {}
+  end
+  if not M._fold_cache[bufnr] then
+    M._fold_cache[bufnr] = get_fold_ranges(bufnr)
   end
 
-  local tree = parser:parse()[1]
-  if not tree then
-    return
-  end
-
-  local cursor = vim.api.nvim_win_get_cursor(0)
-  local row = cursor[1] - 1
-  local col = cursor[2]
-
-  local node = tree:root():named_descendant_for_range(row, col, row, col)
-
-  while node do
-    if is_function_node(node:type(), lang) then
-      local body_field = node:field('body')
-      if body_field and #body_field > 0 then
-        local body_start = body_field[1]:start() + 1
-        pcall(vim.cmd, 'silent! ' .. body_start .. 'foldopen!')
-      end
+  local ranges = M._fold_cache[bufnr]
+  for _, range in ipairs(ranges) do
+    local fold_start = range[1]
+    if cursor_line == fold_start - 1 or cursor_line == fold_start then
+      pcall(vim.cmd, 'silent! ' .. fold_start .. 'foldopen!')
+      return
     end
-    node = node:parent()
   end
 end
 
